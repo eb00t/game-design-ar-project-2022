@@ -8,4 +8,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
-  m_configObjects: {}
+  m_configObjects:
+    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 2a368d3d817d0fb4387f9fbd61420c9c, type: 2}
+    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 38bf7da8c447d9141be6ef519bce2ace, type: 2}
+    com.unity.xr.magicleap.magic_leap_settings: {fileID: 11400000, guid: a8bca5d0168ed14489212941fc56ba31, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 634b8ba56c16af941b5bc64ac9881a73, type: 2}

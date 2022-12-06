@@ -49,8 +49,18 @@ public class PuzzleHandler : MonoBehaviour
             pos.x = (pos.x - width) / width;
             pos.y = (pos.y - height) / height;
             position = new Vector3(-pos.x, pos.y, 0.0f);
+            Vector2 vec2pos = new Vector2(-pos.x, pos.y);
 
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(vec2pos);
 
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (pieceList.Contains(hit.transform))
+                {
+
+                }
+            }
         }
     }
 }

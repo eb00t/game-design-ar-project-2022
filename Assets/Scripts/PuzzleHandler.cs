@@ -58,7 +58,11 @@ public class PuzzleHandler : MonoBehaviour
             {
                 if (pieceList.Contains(hit.transform))
                 {
-
+                    if (touch.phase == TouchPhase.Moved)
+                    {
+                        Vector3 newPos = Camera.main.ScreenToWorldPoint(vec2pos);
+                        hit.transform.position = newPos;
+                    }
                 }
             }
         }

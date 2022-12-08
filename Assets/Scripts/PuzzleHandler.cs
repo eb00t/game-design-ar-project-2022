@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 public class PuzzleHandler : MonoBehaviour
 {
-    private List<Transform> pieceList; // holds the current puzzle pieces
+    [SerializeField] private List<Transform> pieceList; // holds the current puzzle pieces
     public Transform[] puzzleArray; // holds all the game puzzles
 
     private Vector3 position;
@@ -39,32 +39,37 @@ public class PuzzleHandler : MonoBehaviour
 
     private void SelectMovePiece()
     {
-        Touch touch = Input.GetTouch(0);
-        width = (float)Screen.width / 2.0f;
-        height = (float)Screen.height / 2.0f;
-
-        if (touch.phase == TouchPhase.Began)
+        
+        if (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Moved)
         {
-            Vector2 pos = touch.position;
-            pos.x = (pos.x - width) / width;
-            pos.y = (pos.y - height) / height;
-            position = new Vector3(-pos.x, pos.y, 0.0f);
-            Vector2 vec2pos = new Vector2(-pos.x, pos.y);
-
+            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(vec2pos);
 
             if (Physics.Raycast(ray, out hit))
             {
                 if (pieceList.Contains(hit.transform))
                 {
-                    if (touch.phase == TouchPhase.Moved)
-                    {
-                        Vector3 newPos = Camera.main.ScreenToWorldPoint(vec2pos);
-                        hit.transform.position = newPos;
-                    }
+                    hit.transform.position = Input.GetTouch(0).position;
                 }
             }
         }
+        
+
+        /*
+        if (Input.GetMouseButton(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (pieceList.Contains(hit.transform))
+                {
+                    Debug.Log("Done");
+                    hit.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                }
+            }
+        }
+        */
     }
 }

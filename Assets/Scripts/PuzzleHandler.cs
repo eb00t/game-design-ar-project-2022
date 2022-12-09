@@ -12,6 +12,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
 
     public GameObject groundPlane, selectedObject;
     public Camera cam;
+    private float step = 0.1f;
 
     private float xBounds1, xBounds2, zBounds1, zBounds2;
     private Vector3 bounds;
@@ -46,6 +47,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
                     pieceList.Remove(child);
                     pieceDest.Remove(pieceDest[i]);
                     child.transform.position = pieceDest[i];
+                    selectedObject = null;
                 }
             }
         }
@@ -100,7 +102,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             {
                 Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
                 Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, groundPlane.transform.position.y, worldPosition.z);
+                selectedObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, worldPosition.z);
 
                 selectedObject = null;
             }
@@ -112,7 +114,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             {
                 Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
                 Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, groundPlane.transform.position.y, worldPosition.z);
+                selectedObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, worldPosition.z);
             }
         }
 

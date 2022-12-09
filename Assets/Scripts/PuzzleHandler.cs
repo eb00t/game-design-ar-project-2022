@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.UIElements;
 
-public class PuzzleHandler : MonoBehaviour
+public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axis at a time (e.g. move back and forward only)
 {
     [SerializeField] private List<Transform> pieceList; // holds the current puzzle pieces
     [SerializeField] private List<Vector3> pieceDest; // holds target positions for completed puzzles
@@ -20,8 +20,6 @@ public class PuzzleHandler : MonoBehaviour
     void Start()
     {
         GetChildren(puzzleArray[0]);
-        LogLocations();
-        RandomisePieces();
 
         Vector3 scale = groundPlane.transform.localScale;
         xBounds1 = groundPlane.transform.position.x - (scale.x / 2);
@@ -29,17 +27,28 @@ public class PuzzleHandler : MonoBehaviour
 
         zBounds1 = groundPlane.transform.position.z - (scale.z / 2);
         zBounds2 = groundPlane.transform.position.z + (scale.z / 2);
-
-        Debug.Log(xBounds1);
-        Debug.Log(xBounds2);
-        Debug.Log(zBounds1);
-        Debug.Log(zBounds2);
     }
 
     // Update is called once per frame
     void Update()
     {
         SelectMovePiece();
+
+        // checks piece locations and their target, if target is within dist
+        // it snaps to the target and is immovable
+        foreach (Transform child in pieceList)
+        {
+            for (int i = 0; i < pieceDest.Count; i++)
+            {
+                float dist = Vector3.Distance(child.position, pieceDest[i]);
+                if (dist < 0.1f)
+                {
+                    pieceList.Remove(child);
+                    pieceDest.Remove(pieceDest[i]);
+                    child.transform.position = pieceDest[i];
+                }
+            }
+        }
     }
 
     // cycles through all children of specified puzzle and adds them to a list
@@ -52,8 +61,11 @@ public class PuzzleHandler : MonoBehaviour
                 pieceList.Add(child);
             }
         }
+
+        LogLocations();
     }
 
+    // randomises piece positions in a specified range
     private void RandomisePieces()
     {
         foreach (Transform child in pieceList)
@@ -68,33 +80,11 @@ public class PuzzleHandler : MonoBehaviour
         }
     }
 
+    // allows pieces in piecelist to be moved when clicked on
     private void SelectMovePiece()
     {
-        /*
-        if (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Moved)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (pieceList.Contains(hit.transform))
-                {
-                    Debug.Log("Touch input found");
-                    
-                    hit.transform.position = Input.GetTouch(0).position;
-                }
-            }
-        }\
-        */
-
         if (Input.GetMouseButton(0))
         {
-            //Vector3 pos = cam.ScreenToWorldPoint(Input.mousePosition);
-            //pos = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y), Mathf.Round(pos.z));
-
-            //Debug.Log("InBounds");
-
             if (selectedObject == null)
             {
                 RaycastHit hit = CastRay();
@@ -128,12 +118,15 @@ public class PuzzleHandler : MonoBehaviour
 
     }
 
+    // holds the initial/target locations of all the pieces in piecelist 
     private void LogLocations()
     {
         for (int i = 0; i < pieceList.Count; i++)
         {
-            pieceDest.Add(pieceList[0].position);
+            pieceDest.Add(pieceList[i].position);
         }
+
+        RandomisePieces();
     }
 
     private RaycastHit CastRay()

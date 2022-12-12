@@ -8,14 +8,20 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
 {
     [SerializeField] private List<Transform> pieceList; // holds the current puzzle pieces
     [SerializeField] private List<Vector3> pieceDest; // holds target positions for completed puzzles
+    [SerializeField] private List<Quaternion> pieceRot; // holds target rotations for completed puzzles
+    public float yPos;
     public Transform[] puzzleArray; // holds all the game puzzles
 
     public GameObject groundPlane, selectedObject;
     public Camera cam;
-    private float step = 0.1f;
 
     private float xBounds1, xBounds2, zBounds1, zBounds2;
     private Vector3 bounds;
+
+    public void PositionUpdate(float value)
+    {
+        yPos = value;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -41,12 +47,12 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
         {
             for (int i = 0; i < pieceDest.Count; i++)
             {
-                float dist = Vector3.Distance(child.position, pieceDest[i]);
+                float dist = Vector3.Distance(pieceList[i].position, pieceDest[i]);
                 if (dist < 0.1f)
                 {
-                    pieceList.Remove(child);
-                    pieceDest.Remove(pieceDest[i]);
+                    child.gameObject.tag = "InPlace";
                     child.transform.position = pieceDest[i];
+                    child.transform.rotation = pieceRot[i];
                     selectedObject = null;
                 }
             }
@@ -91,7 +97,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             {
                 RaycastHit hit = CastRay();
 
-                if (!pieceList.Contains(hit.transform))
+                if (!hit.transform || hit.transform.CompareTag("InPlace"))
                 {
                     return;
                 }
@@ -102,7 +108,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             {
                 Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
                 Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, worldPosition.z);
+                selectedObject.transform.position = new Vector3(worldPosition.x, yPos, worldPosition.z);
 
                 selectedObject = null;
             }
@@ -110,11 +116,11 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
 
         if (selectedObject != null)
         {
-            if (pieceList.Contains(selectedObject.transform))
+            if (pieceList.Contains(selectedObject.transform) && !selectedObject.CompareTag("InPlace"))
             {
                 Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
                 Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, worldPosition.y, worldPosition.z);
+                selectedObject.transform.position = new Vector3(worldPosition.x, yPos, worldPosition.z);
             }
         }
 
@@ -125,8 +131,11 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
     {
         for (int i = 0; i < pieceList.Count; i++)
         {
-            pieceDest.Add(pieceList[i].position);
+            pieceDest.Insert(i, pieceList[i].position);
+            pieceRot.Insert(i, pieceList[i].rotation);
         }
+
+        
 
         RandomisePieces();
     }
@@ -153,4 +162,6 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             return hit;
         }
     }
+
+    
 }

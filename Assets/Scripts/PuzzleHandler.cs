@@ -4,25 +4,20 @@ using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.UIElements;
 
-public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axis at a time (e.g. move back and forward only)
+public class PuzzleHandler : MonoBehaviour // TODO: click to select object and click position to place
 {
     [SerializeField] private List<Transform> pieceList; // holds the current puzzle pieces
     [SerializeField] private List<Vector3> pieceDest; // holds target positions for completed puzzles
     [SerializeField] private List<Quaternion> pieceRot; // holds target rotations for completed puzzles
-    public float yPos;
+
     public Transform[] puzzleArray; // holds all the game puzzles
+    public Transform[] ghostArray; // holds the destination objects
 
     public GameObject groundPlane, selectedObject;
     public Camera cam;
 
     private float xBounds1, xBounds2, zBounds1, zBounds2;
     private Vector3 bounds;
-
-    public void PositionUpdate(float value)
-    {
-        yPos = value;
-        selectedObject.transform.position = new Vector3(selectedObject.transform.position.x, yPos, selectedObject.transform.position.y);
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -46,11 +41,11 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
         // it snaps to the target and is immovable
         for (int i = 0; i < pieceList.Count; i++)
         {
-            if (!pieceList[i].gameObject.CompareTag("InPlace"))
+            if (pieceList[i].gameObject.CompareTag("InPlace"))
             {
                 float dist = Vector3.Distance(pieceList[i].position, pieceDest[i]);
 
-                if (dist < 0.1f)
+                if (dist < 5f)
                 {
                     pieceList[i].gameObject.tag = "InPlace";
                     pieceList[i].transform.position = pieceDest[i];
@@ -81,11 +76,14 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
         foreach (Transform child in pieceList)
         {
             float x = Random.Range(-.5f, .5f);
-            float y = Random.Range(0f, 360f);
             float z = Random.Range(-.5f, .5f);
 
+            float rx = Random.Range(0, 360);
+            float ry = Random.Range(0, 360);
+            float rz = Random.Range(0, 360);
+
             child.transform.position = new Vector3(x, groundPlane.transform.position.y, z);
-            //child.transform.rotation = Quaternion.Euler(x, y, z);
+            child.transform.rotation = Quaternion.Euler(rx, ry, rz);
         }
     }
 
@@ -107,6 +105,10 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             }
             else if (pieceList.Contains(selectedObject.transform) && !selectedObject.CompareTag("InPlace"))
             {
+                Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
+                Vector3 worldPosition = cam.ScreenToWorldPoint(position);
+                selectedObject.transform.position = new Vector3(worldPosition.x, 0, worldPosition.z);
+
                 selectedObject = null;
             }
         }
@@ -115,6 +117,9 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
         {
             if (pieceList.Contains(selectedObject.transform) && !selectedObject.CompareTag("InPlace"))
             {
+                Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
+                Vector3 worldPosition = cam.ScreenToWorldPoint(position);
+                selectedObject.transform.position = new Vector3(worldPosition.x, 0, worldPosition.z);
             }
         }
     }

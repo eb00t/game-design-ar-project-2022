@@ -36789,6 +36789,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 465116627}
+    - target: {fileID: 1911580407870099304, guid: f9f6d5970a8c858458a211897499e0b7, type: 3}
+      propertyPath: m_TagString
+      value: InPlace
+      objectReference: {fileID: 0}
     - target: {fileID: 1915399104722818211, guid: f9f6d5970a8c858458a211897499e0b7, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -38463,7 +38467,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3292552861435719541, guid: f9f6d5970a8c858458a211897499e0b7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3294007688433798558, guid: f9f6d5970a8c858458a211897499e0b7, type: 3}
       propertyPath: m_Mesh
@@ -80091,7 +80095,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pieceList: []
   pieceDest: []
-  pieceRot: []
+  ghostDest: []
   puzzleArray:
   - {fileID: 840899787}
   ghostArray:

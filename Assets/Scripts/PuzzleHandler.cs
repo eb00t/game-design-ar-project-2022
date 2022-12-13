@@ -8,7 +8,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
 {
     [SerializeField] private List<Transform> pieceList; // holds the current puzzle pieces
     [SerializeField] private List<Vector3> pieceDest; // holds target positions for completed puzzles
-    [SerializeField] private List<Quaternion> pieceRot; // holds target rotations for completed puzzles
+    [SerializeField] private List<Vector3> ghostDest;
 
     public Transform[] puzzleArray; // holds all the game puzzles
     public Transform[] ghostArray; // holds the destination objects
@@ -35,10 +35,14 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
     // Update is called once per frame
     void Update()
     {
-        SelectMovePiece();
+        //SelectMovePiece();
+
+        PieceMovement();
 
         // checks piece locations and their target, if target is within dist
         // it snaps to the target and is immovable
+
+        /*
         for (int i = 0; i < pieceList.Count; i++)
         {
             if (pieceList[i].gameObject.CompareTag("InPlace"))
@@ -49,11 +53,12 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
                 {
                     pieceList[i].gameObject.tag = "InPlace";
                     pieceList[i].transform.position = pieceDest[i];
-                    pieceList[i].transform.rotation = pieceRot[i];
+                    //pieceList[i].transform.rotation = pieceRot[i];
                     selectedObject = null;
                 }
             }
         }
+        */
     }
 
     // cycles through all children of specified puzzle and adds them to a list
@@ -87,6 +92,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
         }
     }
 
+    /*
     // allows pieces in piecelist to be moved when clicked on
     private void SelectMovePiece()
     {
@@ -123,6 +129,43 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
             }
         }
     }
+    */
+
+    private void PieceMovement()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit = CastRay();
+
+            if (
+                hit.collider == null ||
+                (hit.collider != null && hit.transform.CompareTag("InPlace")) ||
+                (hit.collider != null && !pieceList.Contains(hit.transform) && !ghostDest.Contains(hit.transform.position))
+                )
+            {
+                print("failed");
+                return;
+            }
+            else
+            {
+                if (selectedObject == null) // select piece
+                { 
+                    selectedObject = hit.collider.gameObject;
+                }
+                else if (ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
+                { // place piece
+                    selectedObject.transform.position = hit.collider.transform.position;
+                    selectedObject.tag = "InPlace";
+                    selectedObject = null;
+                }
+
+                if (!ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
+                {
+                    selectedObject = null;
+                }
+            }
+        }
+    }
 
     // holds the initial/target locations of all the pieces in piecelist 
     private void LogLocations()
@@ -130,7 +173,9 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
         for (int i = 0; i < pieceList.Count; i++)
         {
             pieceDest.Insert(i, pieceList[i].position);
-            pieceRot.Insert(i, pieceList[i].rotation);
+            ghostDest.Insert(i, pieceList[i].position);
+
+            //pieceRot.Insert(i, pieceList[i].rotation);
         }
 
         RandomisePieces();

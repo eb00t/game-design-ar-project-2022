@@ -21,6 +21,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
     public void PositionUpdate(float value)
     {
         yPos = value;
+        selectedObject.transform.position = new Vector3(selectedObject.transform.position.x, yPos, selectedObject.transform.position.y);
     }
 
     // Start is called before the first frame update
@@ -43,16 +44,17 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
 
         // checks piece locations and their target, if target is within dist
         // it snaps to the target and is immovable
-        foreach (Transform child in pieceList)
+        for (int i = 0; i < pieceList.Count; i++)
         {
-            for (int i = 0; i < pieceDest.Count; i++)
+            if (!pieceList[i].gameObject.CompareTag("InPlace"))
             {
                 float dist = Vector3.Distance(pieceList[i].position, pieceDest[i]);
+
                 if (dist < 0.1f)
                 {
-                    child.gameObject.tag = "InPlace";
-                    child.transform.position = pieceDest[i];
-                    child.transform.rotation = pieceRot[i];
+                    pieceList[i].gameObject.tag = "InPlace";
+                    pieceList[i].transform.position = pieceDest[i];
+                    pieceList[i].transform.rotation = pieceRot[i];
                     selectedObject = null;
                 }
             }
@@ -79,37 +81,32 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
         foreach (Transform child in pieceList)
         {
             float x = Random.Range(-.5f, .5f);
+            float y = Random.Range(0f, 360f);
             float z = Random.Range(-.5f, .5f);
 
-            Debug.Log(x);
-            Debug.Log(z);
-
             child.transform.position = new Vector3(x, groundPlane.transform.position.y, z);
+            //child.transform.rotation = Quaternion.Euler(x, y, z);
         }
     }
 
     // allows pieces in piecelist to be moved when clicked on
     private void SelectMovePiece()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0))
         {
             if (selectedObject == null)
             {
                 RaycastHit hit = CastRay();
 
-                if (!hit.transform || hit.transform.CompareTag("InPlace"))
+                if (hit.collider == null || hit.transform.CompareTag("InPlace"))
                 {
                     return;
                 }
 
                 selectedObject = hit.collider.gameObject;
             }
-            else
+            else if (pieceList.Contains(selectedObject.transform) && !selectedObject.CompareTag("InPlace"))
             {
-                Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
-                Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, yPos, worldPosition.z);
-
                 selectedObject = null;
             }
         }
@@ -118,12 +115,8 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
         {
             if (pieceList.Contains(selectedObject.transform) && !selectedObject.CompareTag("InPlace"))
             {
-                Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
-                Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, yPos, worldPosition.z);
             }
         }
-
     }
 
     // holds the initial/target locations of all the pieces in piecelist 
@@ -134,8 +127,6 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             pieceDest.Insert(i, pieceList[i].position);
             pieceRot.Insert(i, pieceList[i].rotation);
         }
-
-        
 
         RandomisePieces();
     }
@@ -162,6 +153,4 @@ public class PuzzleHandler : MonoBehaviour // TODO: restrict movement to one axi
             return hit;
         }
     }
-
-    
 }

@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.UIElements;
 
-public class PuzzleHandler : MonoBehaviour // TODO: click to select object and click position to place
+public class PuzzleHandler : MonoBehaviour
 {
     [SerializeField] private List<Transform> pieceList; // holds the current puzzle pieces
     [SerializeField] private List<Vector3> pieceDest; // holds target positions for completed puzzles
     [SerializeField] private List<Vector3> ghostDest;
+    [SerializeField] private List<GameObject> ghostList;
 
     public Transform[] puzzleArray; // holds all the game puzzles
     public Transform[] ghostArray; // holds the destination objects
@@ -16,49 +17,62 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
     public GameObject groundPlane, selectedObject;
     public Camera cam;
 
-    private float xBounds1, xBounds2, zBounds1, zBounds2;
-    private Vector3 bounds;
-
     // Start is called before the first frame update
     void Start()
     {
         GetChildren(puzzleArray[0]);
-
-        Vector3 scale = groundPlane.transform.localScale;
-        xBounds1 = groundPlane.transform.position.x - (scale.x / 2);
-        xBounds2 = groundPlane.transform.position.x + (scale.x / 2);
-
-        zBounds1 = groundPlane.transform.position.z - (scale.z / 2);
-        zBounds2 = groundPlane.transform.position.z + (scale.z / 2);
     }
 
     // Update is called once per frame
     void Update()
     {
-        //SelectMovePiece();
-
-        PieceMovement();
-
-        // checks piece locations and their target, if target is within dist
-        // it snaps to the target and is immovable
-
-        /*
-        for (int i = 0; i < pieceList.Count; i++)
+        // if mouse is clicked this casts a ray to check for
+        // pieces allowed to be moved and targets that pieces will
+        // move to, once a piece is placed in the right place you can no longer
+        // move it
+        if (Input.GetMouseButtonDown(0))
         {
-            if (pieceList[i].gameObject.CompareTag("InPlace"))
-            {
-                float dist = Vector3.Distance(pieceList[i].position, pieceDest[i]);
+            RaycastHit hit = CastRay();
 
-                if (dist < 5f)
+            if (
+                hit.collider == null ||
+                (hit.collider != null && hit.transform.CompareTag("InPlace")) ||
+                (hit.collider != null && !pieceList.Contains(hit.transform) && !ghostDest.Contains(hit.transform.position))
+                )
+            {
+                Debug.Log("failed");
+                return;
+            }
+            else
+            {
+                Debug.Log(hit.collider.gameObject.name);
+                Debug.Log("success");
+                if (selectedObject == null && !ghostDest.Contains(hit.transform.position)) // select piece
                 {
-                    pieceList[i].gameObject.tag = "InPlace";
-                    pieceList[i].transform.position = pieceDest[i];
-                    //pieceList[i].transform.rotation = pieceRot[i];
+                    selectedObject = hit.collider.gameObject;
+                }
+                else if (ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
+                { // place piece
+                    Debug.Log("piece placed");
+                    selectedObject.transform.position = hit.collider.transform.position;
+                    hit.collider.gameObject.SetActive(false);
+
+                    for (int i = 0; i < pieceList.Count; i++)
+                    {
+                        if (pieceList[i].gameObject == selectedObject)
+                        {
+                            if (pieceList[i].position == ghostDest[i])
+                            {
+                                Debug.Log("locked");
+                                selectedObject.tag = "InPlace";
+                            }
+                        }
+                    }
+
                     selectedObject = null;
                 }
             }
         }
-        */
     }
 
     // cycles through all children of specified puzzle and adds them to a list
@@ -75,8 +89,19 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
         LogLocations();
     }
 
-    // randomises piece positions in a specified range
-    private void RandomisePieces()
+    private void GetChildrenObjects(GameObject piece)
+    {
+        foreach (GameObject child in transform.gameObject.GetComponentsInChildren<GameObject>())
+        {
+            if (child.GetComponent<MeshRenderer>())
+            {
+                ghostList.Add(child);
+            }
+        }
+    }
+
+        // randomises piece positions in a specified range
+        private void RandomisePieces()
     {
         foreach (Transform child in pieceList)
         {
@@ -89,96 +114,6 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
 
             child.transform.position = new Vector3(x, groundPlane.transform.position.y, z);
             //child.transform.rotation = Quaternion.Euler(rx, ry, rz);
-        }
-    }
-
-    /*
-    // allows pieces in piecelist to be moved when clicked on
-    private void SelectMovePiece()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (selectedObject == null)
-            {
-                RaycastHit hit = CastRay();
-
-                if (hit.collider == null || hit.transform.CompareTag("InPlace"))
-                {
-                    return;
-                }
-
-                selectedObject = hit.collider.gameObject;
-            }
-            else if (pieceList.Contains(selectedObject.transform) && !selectedObject.CompareTag("InPlace"))
-            {
-                Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
-                Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, 0, worldPosition.z);
-
-                selectedObject = null;
-            }
-        }
-
-        if (selectedObject != null)
-        {
-            if (pieceList.Contains(selectedObject.transform) && !selectedObject.CompareTag("InPlace"))
-            {
-                Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.WorldToScreenPoint(selectedObject.transform.position).z);
-                Vector3 worldPosition = cam.ScreenToWorldPoint(position);
-                selectedObject.transform.position = new Vector3(worldPosition.x, 0, worldPosition.z);
-            }
-        }
-    }
-    */
-
-    private void PieceMovement()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit = CastRay();
-
-            if (
-                hit.collider == null ||
-                (hit.collider != null && hit.transform.CompareTag("InPlace")) ||
-                (hit.collider != null && !pieceList.Contains(hit.transform) && !ghostDest.Contains(hit.transform.position))
-                )
-            {
-                Debug.Log("failed");
-                return;
-            }
-            else
-            {
-                Debug.Log("success");
-                if (selectedObject == null && !ghostDest.Contains(hit.transform.position)) // select piece
-                { 
-                    selectedObject = hit.collider.gameObject;
-                }
-                else if (ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
-                { // place piece
-                    Debug.Log("piece placed");
-                    selectedObject.transform.position = hit.collider.transform.position;
-
-                    for (int i = 0; i < pieceList.Count; i++)
-                    {
-                        if (pieceList[i].gameObject == selectedObject)
-                        {
-                            if (pieceList[i].position == ghostDest[i])
-                            {
-                                selectedObject.tag = "InPlace";
-                            }
-                        }
-                    }
-
-                    selectedObject = null;
-                }
-
-                /*
-                if (!ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
-                {
-                    selectedObject = null;
-                }
-                */
-            }
         }
     }
 

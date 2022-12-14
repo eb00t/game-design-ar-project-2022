@@ -9,7 +9,7 @@ public class PuzzleHandler : MonoBehaviour
     [SerializeField] private List<Transform> pieceList; // holds the current puzzle pieces
     [SerializeField] private List<Vector3> pieceDest; // holds target positions for completed puzzles
     [SerializeField] private List<Vector3> ghostDest;
-    [SerializeField] private List<GameObject> ghostList;
+    [SerializeField] private List<Transform> ghostList;
 
     public Transform[] puzzleArray; // holds all the game puzzles
     public Transform[] ghostArray; // holds the destination objects
@@ -21,6 +21,7 @@ public class PuzzleHandler : MonoBehaviour
     void Start()
     {
         GetChildren(puzzleArray[0]);
+        GetChildrenObjects(ghostArray[0]);
     }
 
     // Update is called once per frame
@@ -37,7 +38,7 @@ public class PuzzleHandler : MonoBehaviour
             if (
                 hit.collider == null ||
                 (hit.collider != null && hit.transform.CompareTag("InPlace")) ||
-                (hit.collider != null && !pieceList.Contains(hit.transform) && !ghostDest.Contains(hit.transform.position))
+                (hit.collider != null && !pieceList.Contains(hit.transform) && !ghostList.Contains(hit.transform))
                 )
             {
                 Debug.Log("failed");
@@ -47,15 +48,15 @@ public class PuzzleHandler : MonoBehaviour
             {
                 Debug.Log(hit.collider.gameObject.name);
                 Debug.Log("success");
-                if (selectedObject == null && !ghostDest.Contains(hit.transform.position)) // select piece
+                if (selectedObject == null && !ghostList.Contains(hit.transform)) // select piece 
                 {
                     selectedObject = hit.collider.gameObject;
                 }
-                else if (ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
+                else if (ghostList.Contains(hit.transform) && selectedObject != null)
                 { // place piece
                     Debug.Log("piece placed");
                     selectedObject.transform.position = hit.collider.transform.position;
-                    hit.collider.gameObject.SetActive(false);
+                    //hit.collider.gameObject.SetActive(false);
 
                     for (int i = 0; i < pieceList.Count; i++)
                     {
@@ -89,13 +90,13 @@ public class PuzzleHandler : MonoBehaviour
         LogLocations();
     }
 
-    private void GetChildrenObjects(GameObject piece)
+    private void GetChildrenObjects(Transform transform)
     {
-        foreach (GameObject child in transform.gameObject.GetComponentsInChildren<GameObject>())
+        foreach (Transform child in transform.gameObject.GetComponentsInChildren<Transform>())
         {
             if (child.GetComponent<MeshRenderer>())
             {
-                ghostList.Add(child);
+                ghostList.Add(child.transform);
             }
         }
     }

@@ -88,7 +88,7 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
             float rz = Random.Range(0, 360);
 
             child.transform.position = new Vector3(x, groundPlane.transform.position.y, z);
-            child.transform.rotation = Quaternion.Euler(rx, ry, rz);
+            //child.transform.rotation = Quaternion.Euler(rx, ry, rz);
         }
     }
 
@@ -143,26 +143,41 @@ public class PuzzleHandler : MonoBehaviour // TODO: click to select object and c
                 (hit.collider != null && !pieceList.Contains(hit.transform) && !ghostDest.Contains(hit.transform.position))
                 )
             {
-                print("failed");
+                Debug.Log("failed");
                 return;
             }
             else
             {
-                if (selectedObject == null) // select piece
+                Debug.Log("success");
+                if (selectedObject == null && !ghostDest.Contains(hit.transform.position)) // select piece
                 { 
                     selectedObject = hit.collider.gameObject;
                 }
                 else if (ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
                 { // place piece
+                    Debug.Log("piece placed");
                     selectedObject.transform.position = hit.collider.transform.position;
-                    selectedObject.tag = "InPlace";
+
+                    for (int i = 0; i < pieceList.Count; i++)
+                    {
+                        if (pieceList[i].gameObject == selectedObject)
+                        {
+                            if (pieceList[i].position == ghostDest[i])
+                            {
+                                selectedObject.tag = "InPlace";
+                            }
+                        }
+                    }
+
                     selectedObject = null;
                 }
 
+                /*
                 if (!ghostDest.Contains(hit.collider.gameObject.transform.position) && selectedObject != null)
                 {
                     selectedObject = null;
                 }
+                */
             }
         }
     }

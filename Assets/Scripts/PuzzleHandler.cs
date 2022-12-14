@@ -41,20 +41,16 @@ public class PuzzleHandler : MonoBehaviour
                 (hit.collider != null && !pieceList.Contains(hit.transform) && !ghostList.Contains(hit.transform))
                 )
             {
-                Debug.Log("failed");
                 return;
             }
             else
             {
-                Debug.Log(hit.collider.gameObject.name);
-                Debug.Log("success");
                 if (selectedObject == null && !ghostList.Contains(hit.transform)) // select piece 
                 {
                     selectedObject = hit.collider.gameObject;
                 }
                 else if (ghostList.Contains(hit.transform) && selectedObject != null)
                 { // place piece
-                    Debug.Log("piece placed");
                     selectedObject.transform.position = hit.collider.transform.position;
                     //hit.collider.gameObject.SetActive(false);
 
@@ -64,7 +60,6 @@ public class PuzzleHandler : MonoBehaviour
                         {
                             if (pieceList[i].position == ghostDest[i])
                             {
-                                Debug.Log("locked");
                                 selectedObject.tag = "InPlace";
                             }
                         }

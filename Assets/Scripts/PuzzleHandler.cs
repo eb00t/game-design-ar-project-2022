@@ -10,6 +10,7 @@ public class PuzzleHandler : MonoBehaviour
     [SerializeField] private List<Vector3> pieceDest; // holds target positions for completed puzzles
     [SerializeField] private List<Vector3> ghostDest;
     [SerializeField] private List<Transform> ghostList;
+    [SerializeField] private List<Vector3> randomisedPositions;
 
     public Transform[] puzzleArray; // holds all the game puzzles
     public Transform[] ghostArray; // holds the destination objects
@@ -20,8 +21,11 @@ public class PuzzleHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GetChildren(puzzleArray[0]);
-        GetChildrenObjects(ghostArray[0]);
+        GetChildren(puzzleArray[0], pieceList);
+        randomisedPositions.Add(new Vector3(0, 0, 0));
+        randomisedPositions.Add(new Vector3(0, 0, 0));
+
+        GetChildren(ghostArray[0], ghostList);
     }
 
     // Update is called once per frame
@@ -72,45 +76,50 @@ public class PuzzleHandler : MonoBehaviour
     }
 
     // cycles through all children of specified puzzle and adds them to a list
-    private void GetChildren(Transform transform)
+    private void GetChildren(Transform transform, List<Transform> list)
     {
         foreach (Transform child in transform.gameObject.GetComponentsInChildren<Transform>())
         {
             if (child.GetComponent<MeshRenderer>())
             {
-                pieceList.Add(child);
+                list.Add(child);
             }
         }
 
-        LogLocations();
-    }
-
-    private void GetChildrenObjects(Transform transform)
-    {
-        foreach (Transform child in transform.gameObject.GetComponentsInChildren<Transform>())
+        if (list == pieceList)
         {
-            if (child.GetComponent<MeshRenderer>())
-            {
-                ghostList.Add(child.transform);
-            }
+            LogLocations();
         }
     }
 
-        // randomises piece positions in a specified range
-        private void RandomisePieces()
+    private float RandomFloat(float a, float b)
+    {
+        float newFloat = Random.Range(a, b);
+
+        while (newFloat < .15 && newFloat > -.15)
+        {
+            newFloat = Random.Range(a, b);
+        }
+
+        return newFloat;
+    }
+
+    // randomises piece positions in a specified range
+    private void RandomisePieces()
     {
         foreach (Transform child in pieceList)
         {
-            float x = Random.Range(-.5f, .5f);
-            float z = Random.Range(-.5f, .5f);
+            Vector3 newPos = new Vector3(RandomFloat(-.5f, .5f), groundPlane.transform.position.y + .01f, RandomFloat(-.5f, .5f));
 
-            float rx = Random.Range(0, 360);
-            float ry = Random.Range(0, 360);
-            float rz = Random.Range(0, 360);
+            while (randomisedPositions.Contains(newPos))
+            {
+                newPos = new Vector3(RandomFloat(-.5f, .5f), groundPlane.transform.position.y + .01f, RandomFloat(-.5f, .5f));
+            }
 
-            child.transform.position = new Vector3(x, groundPlane.transform.position.y, z);
-            //child.transform.rotation = Quaternion.Euler(rx, ry, rz);
+            child.transform.position = newPos;
+            randomisedPositions.Add(newPos);
         }
+        //child.transform.rotation = Quaternion.Euler(rx, ry, rz);
     }
 
     // holds the initial/target locations of all the pieces in piecelist 
@@ -124,7 +133,7 @@ public class PuzzleHandler : MonoBehaviour
             //pieceRot.Insert(i, pieceList[i].rotation);
         }
 
-        RandomisePieces();
+            RandomisePieces();
     }
 
     private RaycastHit CastRay()

@@ -56,6 +56,7 @@ public class PuzzleHandler : MonoBehaviour
                 else if (ghostList.Contains(hit.transform) && selectedObject != null)
                 { // place piece
                     selectedObject.transform.position = hit.collider.transform.position;
+                    selectedObject.transform.rotation = hit.collider.transform.rotation;
                     //hit.collider.gameObject.SetActive(false);
 
                     for (int i = 0; i < pieceList.Count; i++)
@@ -73,6 +74,13 @@ public class PuzzleHandler : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void RotateGroundPlane(float step)
+    {
+        float rotY = groundPlane.transform.eulerAngles.y;
+        float newY = rotY + step;
+        groundPlane.transform.eulerAngles = new Vector3 (groundPlane.transform.localRotation.x, newY, groundPlane.transform.localRotation.z);
     }
 
     // cycles through all children of specified puzzle and adds them to a list

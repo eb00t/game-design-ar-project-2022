@@ -6069,5 +6069,5 @@ Transform:
   - {fileID: 3943118306396721454}
   - {fileID: 1043902061211137013}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

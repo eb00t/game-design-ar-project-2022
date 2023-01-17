@@ -22,8 +22,8 @@ public class PuzzleHandler : MonoBehaviour
     void Start()
     {
         GetChildren(puzzleArray[0], pieceList);
-        randomisedPositions.Add(new Vector3(0, 0, 0));
-        randomisedPositions.Add(new Vector3(0, 0, 0));
+        //randomisedPositions.Add(new Vector3(0, 0, 0));
+        //randomisedPositions.Add(new Vector3(0, 0, 0));
 
         GetChildren(ghostArray[0], ghostList);
     }
@@ -133,6 +133,11 @@ public class PuzzleHandler : MonoBehaviour
     // holds the initial/target locations of all the pieces in piecelist 
     private void LogLocations()
     {
+        pieceDest.Clear();
+        pieceDest.TrimExcess();
+        ghostDest.Clear();
+        ghostDest.TrimExcess();
+
         for (int i = 0; i < pieceList.Count; i++)
         {
             pieceDest.Insert(i, pieceList[i].position);
@@ -141,7 +146,7 @@ public class PuzzleHandler : MonoBehaviour
             //pieceRot.Insert(i, pieceList[i].rotation);
         }
 
-            RandomisePieces();
+        RandomisePieces();
     }
 
     private RaycastHit CastRay()
@@ -164,6 +169,15 @@ public class PuzzleHandler : MonoBehaviour
             Physics.Raycast(worldMousePosNear, worldMousePosFar - worldMousePosNear, out hit);
 
             return hit;
+        }
+    }
+
+    public void ChangePuzzle(int index)
+    {
+        if (puzzleArray.Length >= index)
+        {
+            GetChildren(puzzleArray[index], pieceList);
+            GetChildren(ghostArray[index], ghostList);
         }
     }
 }

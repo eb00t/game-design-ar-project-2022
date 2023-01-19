@@ -15,12 +15,13 @@ public class PuzzleHandler : MonoBehaviour
     public Transform[] puzzleArray; // holds all the game puzzles
     public Transform[] ghostArray; // holds the destination objects
 
-    public GameObject groundPlane, selectedObject;
+    public GameObject groundPlane, currentPuzzle, selectedObject;
     public Camera cam;
 
     // Start is called before the first frame update
     void Start()
     {
+        currentPuzzle = puzzleArray[0].parent.gameObject;
         GetChildren(puzzleArray[0], pieceList);
         //randomisedPositions.Add(new Vector3(0, 0, 0));
         //randomisedPositions.Add(new Vector3(0, 0, 0));
@@ -78,9 +79,9 @@ public class PuzzleHandler : MonoBehaviour
 
     public void RotateGroundPlane(float step)
     {
-        float rotY = groundPlane.transform.eulerAngles.y;
+        float rotY = currentPuzzle.transform.eulerAngles.y;
         float newY = rotY + step;
-        groundPlane.transform.eulerAngles = new Vector3 (groundPlane.transform.localRotation.x, newY, groundPlane.transform.localRotation.z);
+        currentPuzzle.transform.eulerAngles = new Vector3 (currentPuzzle.transform.localRotation.x, newY, currentPuzzle.transform.localRotation.z);
     }
 
     // cycles through all children of specified puzzle and adds them to a list
@@ -176,6 +177,8 @@ public class PuzzleHandler : MonoBehaviour
     {
         if (puzzleArray.Length >= index)
         {
+            currentPuzzle.SetActive(false);
+            currentPuzzle = puzzleArray[index].parent.gameObject;
             GetChildren(puzzleArray[index], pieceList);
             GetChildren(ghostArray[index], ghostList);
         }

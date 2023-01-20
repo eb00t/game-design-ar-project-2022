@@ -81,7 +81,7 @@ public class PuzzleHandler : MonoBehaviour
     {
         float rotY = currentPuzzle.transform.eulerAngles.y;
         float newY = rotY + step;
-        currentPuzzle.transform.eulerAngles = new Vector3 (currentPuzzle.transform.localRotation.x, newY, currentPuzzle.transform.localRotation.z);
+        currentPuzzle.transform.eulerAngles = new Vector3(currentPuzzle.transform.localRotation.x, newY, currentPuzzle.transform.localRotation.z);
     }
 
     // cycles through all children of specified puzzle and adds them to a list
@@ -175,11 +175,15 @@ public class PuzzleHandler : MonoBehaviour
 
     public void ChangePuzzle(int index)
     {
-            currentPuzzle.SetActive(false);
-            currentPuzzle = puzzleArray[index].parent.gameObject;
-            GetChildren(puzzleArray[index], pieceList);
-            GetChildren(ghostArray[index], ghostList);
-            ToggleUI();
+        currentPuzzle.SetActive(false);
+        currentPuzzle = puzzleArray[index].parent.gameObject;
+        pieceList.Clear();
+        pieceList.TrimExcess();
+        ghostList.Clear();
+        ghostList.TrimExcess();
+        GetChildren(puzzleArray[index], pieceList);
+        GetChildren(ghostArray[index], ghostList);
+        ToggleUI();
     }
 
     public void ToggleUI()

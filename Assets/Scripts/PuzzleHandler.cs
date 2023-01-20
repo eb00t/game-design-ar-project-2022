@@ -15,18 +15,14 @@ public class PuzzleHandler : MonoBehaviour
     public Transform[] puzzleArray; // holds all the game puzzles
     public Transform[] ghostArray; // holds the destination objects
 
-    public GameObject groundPlane, currentPuzzle, selectedObject, puzzleMenu;
+    public GameObject currentPuzzle, selectedObject, puzzleMenu;
     public Camera cam;
 
     // Start is called before the first frame update
     void Start()
     {
-        currentPuzzle = puzzleArray[0].parent.gameObject;
-        GetChildren(puzzleArray[0], pieceList);
         //randomisedPositions.Add(new Vector3(0, 0, 0));
         //randomisedPositions.Add(new Vector3(0, 0, 0));
-
-        GetChildren(ghostArray[0], ghostList);
     }
 
     // Update is called once per frame
@@ -79,9 +75,12 @@ public class PuzzleHandler : MonoBehaviour
 
     public void RotateGroundPlane(float step)
     {
-        float rotY = currentPuzzle.transform.eulerAngles.y;
-        float newY = rotY + step;
-        currentPuzzle.transform.eulerAngles = new Vector3(currentPuzzle.transform.localRotation.x, newY, currentPuzzle.transform.localRotation.z);
+        if (currentPuzzle != null)
+        {
+            float rotY = currentPuzzle.transform.eulerAngles.y;
+            float newY = rotY + step;
+            currentPuzzle.transform.eulerAngles = new Vector3(currentPuzzle.transform.localRotation.x, newY, currentPuzzle.transform.localRotation.z);
+        }
     }
 
     // cycles through all children of specified puzzle and adds them to a list
@@ -116,17 +115,20 @@ public class PuzzleHandler : MonoBehaviour
     // randomises piece positions in a specified range
     private void RandomisePieces()
     {
-        foreach (Transform child in pieceList)
+        if (currentPuzzle != null)
         {
-            Vector3 newPos = new Vector3(RandomFloat(-.5f, .5f), groundPlane.transform.position.y + .01f, RandomFloat(-.5f, .5f));
-
-            while (randomisedPositions.Contains(newPos))
+            foreach (Transform child in pieceList)
             {
-                newPos = new Vector3(RandomFloat(-.5f, .5f), groundPlane.transform.position.y + .01f, RandomFloat(-.5f, .5f));
-            }
+                Vector3 newPos = new Vector3(RandomFloat(-.5f, .5f), currentPuzzle.transform.position.y + .01f, RandomFloat(-.5f, .5f));
 
-            child.transform.position = newPos;
-            randomisedPositions.Add(newPos);
+                while (randomisedPositions.Contains(newPos))
+                {
+                    newPos = new Vector3(RandomFloat(-.5f, .5f), currentPuzzle.transform.position.y + .01f, RandomFloat(-.5f, .5f));
+                }
+
+                child.transform.position = newPos;
+                randomisedPositions.Add(newPos);
+            }
         }
         //child.transform.rotation = Quaternion.Euler(rx, ry, rz);
     }
@@ -175,8 +177,12 @@ public class PuzzleHandler : MonoBehaviour
 
     public void ChangePuzzle(int index)
     {
-        currentPuzzle.SetActive(false);
+        if (currentPuzzle != null)
+        {
+            currentPuzzle.SetActive(false);
+        }
         currentPuzzle = puzzleArray[index].parent.gameObject;
+        currentPuzzle.SetActive(true);
         pieceList.Clear();
         pieceList.TrimExcess();
         ghostList.Clear();

@@ -15,7 +15,7 @@ public class PuzzleHandler : MonoBehaviour
     public Transform[] puzzleArray; // holds all the game puzzles
     public Transform[] ghostArray; // holds the destination objects
 
-    public GameObject groundPlane, currentPuzzle, selectedObject;
+    public GameObject groundPlane, currentPuzzle, selectedObject, puzzleMenu;
     public Camera cam;
 
     // Start is called before the first frame update
@@ -175,12 +175,25 @@ public class PuzzleHandler : MonoBehaviour
 
     public void ChangePuzzle(int index)
     {
-        if (puzzleArray.Length >= index)
+        if (puzzleArray.Length <= index)
         {
             currentPuzzle.SetActive(false);
             currentPuzzle = puzzleArray[index].parent.gameObject;
             GetChildren(puzzleArray[index], pieceList);
             GetChildren(ghostArray[index], ghostList);
+            ToggleUI();
+        }
+    }
+
+    public void ToggleUI()
+    {
+        if (puzzleMenu.activeSelf == true)
+        {
+            puzzleMenu.SetActive(false);
+        }
+        else if (puzzleMenu.activeSelf == false)
+        {
+            puzzleMenu.SetActive(true);
         }
     }
 }

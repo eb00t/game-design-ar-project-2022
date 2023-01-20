@@ -175,14 +175,11 @@ public class PuzzleHandler : MonoBehaviour
 
     public void ChangePuzzle(int index)
     {
-        if (puzzleArray.Length <= index)
-        {
             currentPuzzle.SetActive(false);
             currentPuzzle = puzzleArray[index].parent.gameObject;
             GetChildren(puzzleArray[index], pieceList);
             GetChildren(ghostArray[index], ghostList);
             ToggleUI();
-        }
     }
 
     public void ToggleUI()
